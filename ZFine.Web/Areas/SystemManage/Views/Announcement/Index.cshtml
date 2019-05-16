@@ -1,0 +1,256 @@
+﻿@{
+    @ViewBag.Content
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>公告发布</title>
+    <link href="~/Content/assets/design/css/trumbowyg.css" rel="stylesheet" />
+    <script src="~/Content/assets/jquery-v1.10.2.min.js"></script>
+    <script src="~/Content/assets/jquery.min.js"></script>
+    <script src="~/Content/assets/trumbowyg.js"></script>
+    <script src="~/Content/assets/plugins/base64/trumbowyg.base64.js"></script>
+    <script type="text/javascript" charset="utf-8" src="~/ueditor.config.js"></script>
+    <script type="text/javascript" charset="utf-8" src="~/ueditor.all.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="~/lang/zh-cn/zh-cn.js"></script>
+    <link rel="stylesheet" type="text/css" href="./css/waves.min.css?v=0.7.2">
+
+    <script src="~/layer/layer.js"></script>
+    <script type="text/javascript">
+
+        //var keyValue = getQueryString(keyValue);
+        var key = window.location.search.split("=");
+        var keyValue = key[1]
+
+        //实例化编辑器
+        //建议使用工厂方法getEditor创建和引用编辑器实例，如果在某个闭包下引用该编辑器，直接调用UE.getEditor('editor')就能拿到相关的实例
+        var ue = UE.getEditor('editor');
+
+        ///初始化数据
+        $(function () {
+            option()
+            Equipmentoption()
+            if (!!keyValue) {
+                $.ajax({
+                    url: "/SystemManage/Announcement/GetFormJson",
+                    data: { keyValue: keyValue },
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+
+                        document.getElementById("N_Title").value = data.N_Title;
+                        $("#editor")[0].innerHTML = data.N_Content;
+                    }
+                });
+            }
+        });
+      
+        ///选择多个设备
+        function btn_select() {
+            //页面层
+            layer.open({
+                type: 2,
+                skin: 'layui-layer-rim', //加上边框
+                area: ['550px', '350px'], //宽高  他已近到那个页面了的
+                content: '/SystemManage/Announcement/GetList',
+                 
+            })
+        }
+        ///加载公告类型下拉框
+        function option() {
+            $.ajax({
+                //几个参数需要注意一下
+                type: "Post",//方法类型
+                dataType: "json",//预期服务器返回的数据类型
+                url: "/SystemManage/Announcement/option",//url
+                success: function (result) {
+
+                    $('#select2').append(result.m_StringValue)
+                    $("#select2")[0].appendChild(result.m_StringValue)
+                    document.getElementById("select").innerHTML = result.m_StringValue;
+                },
+                error: function (data) {
+
+                    alert("操作失败")
+
+                }
+            });
+        }
+
+        ///加载设备下拉框
+        function Equipmentoption() {
+
+            $.ajax({
+                //几个参数需要注意一下
+                type: "Post",//方法类型
+                dataType: "json",//预期服务器返回的数据类型
+                url: "/SystemManage/Announcement/Equipmentselect",//url
+                success: function (result) {
+
+
+                    $('#select').append(result.m_StringValue)
+                    $("#select")[0].appendChild(result.m_StringValue)
+                    document.getElementById("select").innerHTML = result.m_StringValue;
+                },
+                error: function (data) {
+
+                    alert("操作失败")
+
+                }
+            });
+        }
+
+        ///发布公告
+        function btn_faBu() {
+           
+            var EquipNo = sessionStorage.getItem("Zhi");
+            
+            var name = UE.getEditor('editor').getContent();
+          
+            var title = document.getElementById("N_Title").value;
+
+            //var type_Id = document.getElementById("select").value;
+           
+            var N_ReleaseTime = $("#N_ReleaseTime").val();
+            
+            switch ($("#option1").val()) {
+                case "1"://文本
+                    var name = UE.getEditor('editor').getPlainTxt();
+                    break;
+                case "2"://图片
+                    var name = UE.getEditor('editor').getPlainTxt();
+                    break;
+                case "3"://视频
+                    var name = UE.getEditor('editor').getContent();
+                    break;
+                case "4"://Html
+                    var name = UE.getEditor('editor').getContent();
+                    break;
+                default:
+            }
+           
+            if (EquipNo == null)
+            {
+                alert("请选择设备")
+                return
+            }
+            if (N_ReleaseTime == null || N_ReleaseTime == "" || N_ReleaseTime == undefined) {
+                alert("请选择停留时长")
+                return
+            }
+            
+            if (name == null || name == "" || name == undefined) {
+                alert("请填写类容")
+                return
+            }
+            if (title == null || title == "" || title == undefined) {
+                alert("请填写标题")
+                return
+            }
+            
+
+            ////获取下拉框选中的文本
+            ////var select = document.getElementById("select2");
+            //var options = select.options;
+            //var index = select.selectedIndex;
+            //var type = options[index].text;
+
+           
+            $.ajax({
+                //几个参数需要注意一下
+                type: "Post",//方法类型
+                dataType: "json",//预期服务器返回的数据类型
+                url: "/SystemManage/Announcement/Index",//url
+                data: {
+                    "name": name,
+                    "keyValue": keyValue,
+                    "title": title,
+                    "type_Id": $("#select1").val(),
+                    "type": $("#select1").val(),
+                    "EquipNo": EquipNo,
+                    "N_ReleaseTime": N_ReleaseTime,
+                    "contentType": $("#option1").val(),
+                   
+
+                },
+                success: function (result) {
+                    console.log(result);//打印服务端返回的数据(调试用)
+                    if (result.resultCode == 200) {
+                        sessionStorage.removeItem('Zhi');
+                        alert("SUCCESS");
+                        window.location.reload()
+                    }
+                    ;
+                },
+                error: function () {
+
+                    sessionStorage.removeItem('Zhi');
+                    alert("操作成功");
+                    window.location.reload()
+                }
+            });
+           
+        }
+    </script>
+</head>
+
+<body>
+
+
+    <div style="text-align:center">
+        <span>
+            标题
+            <input type="text" name="N_Title" id="N_Title" value="" style="width:300px;height:30px;top:50px" />
+        </span>
+        <span>
+            发布类型:
+            <select id="select1">
+                <option value="1">热点新闻（广告)</option>
+                <option value="2">内容通知公告</option>
+                <option value="3">停水停电停气</option>
+                
+            </select>
+        </span>
+        <span>
+            公告类型:
+            <select id="option1">
+                <option value="1">文本</option>
+                <option value="2">图片</option>
+                <option value="3">视频</option>
+                <option value="4">图文</option>
+            </select>
+        </span>
+        <span>
+            停留时长/秒:
+            <input type="text" oninput = "value=value.replace(/[^\d]/g,'')" name="N_ReleaseTime" id="N_ReleaseTime" value="" style="width:50px;height:15px;top:50px" />
+        </span>
+
+        @*<span class="btn-group">
+            选择设备
+            <select id="select">
+                <option>请选择</option>
+            </select>
+        </span>*@
+        <a id="NF-select" class="btn btn-primary dropdown-text" onclick="btn_select()"><i class="fa fa-plus"></i>选择设备</a>
+
+    </div>
+    <div>
+        <script id="editor" type="text/plain" style="width:1024px;height:500px;top:11500px">
+        </script>
+    </div>
+
+    @*<p id="colored-button" style="text-align:center" class="btn btn-primary dropdown-text">
+
+            <button type="submit" style="outline:0 none !important; blr:expression(this.onFocus=this.blur())" onclick="btn_faBu()">确认发布</button>
+        </p>*@
+    <a id="NF-add" class="btn btn-primary dropdown-text" style="text-align:center" onclick="btn_faBu()"><i class="fa fa-plus"></i>确认发布</a>
+    
+    <div class="gridPanel">
+        <table id="gridList"></table>
+        <div id="gridPager"></div>
+    </div>
+</body>
+</html>

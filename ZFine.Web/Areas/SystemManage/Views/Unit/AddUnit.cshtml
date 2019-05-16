@@ -1,0 +1,159 @@
+﻿@{
+    ViewBag.Title = "AddUnit";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+
+<link href="~/layer/css/layui.css" rel="stylesheet" />
+<script src="~/layer/mobile/layer.js"></script>
+<script>
+    var keyValue = $.request("keyValue");
+    var ImgUrl = "";
+
+    $(function () {
+        initControl();
+        Equipmentoption();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/SystemManage/Unit/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                    $("#F_UserPassword").val("******").attr('disabled', 'disabled');
+                }
+            });
+        }
+    });
+    function initControl() {
+        $("#F_Gender").bindSelect()
+        $("#F_IsAdministrator").bindSelect()
+        $("#F_EnabledMark").bindSelect()
+        $("#F_OrganizeId").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson"
+        });
+        $("#F_DepartmentId").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson",
+        });
+        $("#F_RoleId").bindSelect({
+            url: "/SystemManage/Role/GetGridJson",
+            id: "F_Id",
+            text: "F_FullName"
+        });
+        $("#F_DutyId").bindSelect({
+            url: "/SystemManage/Duty/GetGridJson",
+            id: "F_Id",
+            text: "F_FullName"
+        });
+    }
+
+    ///加载楼栋下拉框
+    function Equipmentoption() {
+
+        $.ajax({
+            //几个参数需要注意一下
+            type: "Post",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/SystemManage/Unit/Equipmentselect",//url
+            success: function (result) {
+
+
+                $('#UnitCode').append(result.m_StringValue)
+                $("#UnitCode")[0].appendChild(result.m_StringValue)
+                document.getElementById("select").innerHTML = result.m_StringValue;
+            },
+            error: function (data) {
+
+                alert("操作失败")
+
+            }
+        });
+    }
+
+   
+    function submitForm() {
+
+       
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        if ($("#UnitCode").val() == null) {
+            alert("请选择楼栋信息")
+            return
+        }
+        $.submitForm({
+            url: "/SystemManage/CommunityInfo/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#">基本信息</a></li>
+            @*<li ><a href="#">扩展信息</a></li>*@
+        </ul>
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">小区名称</th>
+                    <td class="formValue">
+                        <input id="U_Name" name="U_Name" type="text" class="form-control required" placeholder="请输入小区名称" />
+                    </td>
+                    <th class="formTitle">单元位置</th>
+                    <td class="formValue">
+                        <input id="U_Addr" name="U_Addr" type="text" class="form-control required" placeholder="请输入单元位置" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">单元人口数</th>
+                    <td class="formValue">
+                        <input id="U_Rks" oninput = "value=value.replace(/[^\d]/g,'')" name="U_Rks" type="text" class="form-control required" placeholder="请输入单元人口数" />
+                    </td>
+                    <th class="formTitle">单元总户数</th>
+                    <td class="formValue">
+                        <input id="U_Fs" name="U_Fs" oninput = "value=value.replace(/[^\d]/g,'')" type="text" class="form-control required" placeholder="请输入单元总户数" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">空置户数</th>
+                    <td class="formValue">
+                        <input id="U_Kzfs" name="U_Kzfs" oninput = "value=value.replace(/[^\d]/g,'')" type="text" class="form-control required" placeholder="请输入空置户数" />
+                    </td>
+                    <th class="formTitle">住宅户数</th>
+                    <td class="formValue">
+                        <input id="U_Zzfs" name="U_Zzfs"  oninput = "value=value.replace(/[^\d]/g,'')" type="text" class="form-control required" placeholder="请输入住宅户数" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">商用户数</th>
+                    <td class="formValue">
+                        <input id="U_Syfs" name="U_Syfs" oninput = "value=value.replace(/[^\d]/g,'')" type="text" class="form-control" placeholder="请输入商用户数" />
+                    </td>
+                    <th class="formTitle">单元管理员</th>
+                    <td class="formValue">
+                        <input id="U_Mange" name="U_Mange" type="text" class="form-control" placeholder="请输入单元管理员" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">联系电话</th>
+                    <td class="formValue">
+                        <input id="U_Tel" name="U_Tel" type="text" class="form-control" placeholder="请输入联系电话" />
+                    </td>
+                    <th class="formTitle">请选择楼栋</th>
+                    <td class="formValue">
+                        <select id="UnitCode">
+                            <option>请选择</option>
+                        </select>
+
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>

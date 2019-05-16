@@ -1,0 +1,97 @@
+﻿@{
+    ViewBag.Title = "GetBilling";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<link href="~/layer/css/layui.css" rel="stylesheet" />
+<script src="~/layer/mobile/layer.js"></script>
+<script>
+    var O_HouseNo = $.request("O_HouseNo");
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/SystemManage/FreeStandard/GetGridJson",
+            height: $(window).height() - 128,
+            colModel: [
+                {
+                    label: '选中', name: 'F_Id', width: 30, align: 'center',
+
+                    formatter: function (cellvalue, options, rowObject) {
+                        return '<input name="Fruit" type="checkbox" value="' + cellvalue + '"/>'
+                    }
+
+                },
+                { label: '费用名称', name: 'F_Name', width: 80, align: 'center' },
+                {
+                    label: '计费标准', name: 'F_Standard', width: 80, align: 'center',
+                },
+                { label: '收费类型', name: 'F_Type', width: 80, align: 'center' },
+
+                {
+                    label: '收费周期/天', name: 'F_Cycle', width: 80, align: 'center'
+                },
+                {
+                    label: '收费金额/元', name: 'F_Money', width: 80, align: 'center'
+                },
+
+            ],
+            pager: "#gridPager",
+            sortname: 'F_DepartmentId asc,F_CreatorTime desc',
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#txt_keyword").val() },
+            }).trigger('reloadGrid');
+        });
+    }
+
+
+    function submitForm() {
+
+        
+        var ChargesID = "";
+        $.each($('input:checkbox:checked'), function () {
+            ChargesID += $(this).val() + ","
+        });
+        var reg = /,$/gi;//此处是正则
+        ChargesID = ChargesID.replace(reg, "");
+        //$.ajax({
+        //    //几个参数需要注意一下
+        //    type: "Post",//方法类型
+        //    dataType: "json",//预期服务器返回的数据类型
+        //    url: "/SystemManage/Owners/OwnerAndBilling",//url
+        //    data: {
+        //        "ChargesID": ChargesID,
+        //        "O_HouseNo": O_HouseNo
+        //    },
+        //    success: function (result) {
+        //        console.log(result);//打印服务端返回的数据(调试用)
+        //        if (result.resultCode == 200) {
+
+        //            alert("SUCCESS");
+        //        };
+        //    },
+        //    error: function () {
+        //        alert("操作成功");
+        //    }
+        //});
+
+        $.submitForm({
+            url: "/SystemManage/Owners/OwnerAndBilling?ChargesID=" + ChargesID + "&O_HouseNo=" + O_HouseNo,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+
+
+</script>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

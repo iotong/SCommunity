@@ -1,0 +1,406 @@
+﻿@{
+    ViewBag.Title = "AddOwnersItems";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<link href="~/layer/css/layui.css" rel="stylesheet" />
+<script src="~/layer/mobile/layer.js"></script>
+<script>
+    var keyValue = $.request("keyValue");
+    var ImgUrl = "";
+
+    $(function () {
+
+        initControl();
+        Equipmentoption();
+        Equipmentoptions();
+        Unitoption();
+        option();
+        getMedia();
+
+        if (!!keyValue) {
+
+            $.ajax({
+                //几个参数需要注意一下
+                type: "GET",//方法类型
+                dataType: "json",//预期服务器返回的数据类型
+                //url: "http://localhost:45163/api/Owners?EquipNO=" + "" +"&keyValue="+keyValue,
+                // url: "http://dev.iotong.cn/api/Owners?EquipNO=" + "" + "&keyValue=" + keyValue,//url
+                url: "/SystemManage/OwnersItems/GetFormJson",
+                data: { "keyValue": keyValue },
+                success: function (result) {
+                    console.log(result);//打印服务端返回的数据(调试用)
+                    $("#OI_Name").val(result.OI_Name);
+                    if (result.OI_Sex == true)
+                        $("#OI_Sex").val("true");
+                    else {
+                        $("#OI_Sex").val("false");
+                        $("#OI_IdNumber").val(result.OI_IdNumber);
+                        $("#OI_Notional").val(result.OI_Notional);
+                        $("#OI_Tel").val(result.OI_Tel);
+                        $("#OI_Phone").val(result.OI_Phone);
+                        $("#OI_Rela").val(result.OI_Rela);
+                        $("#OI_Birthday").val(result.OI_Birthday);
+                        $("#OI_FaceImgP").val(result.userFace);
+                        $("#select").val(result.EquipNO);
+                        $("#O_HouseNo").val(result.O_HouseNo)
+                        $("#OI_FaceImgP").val(result.OI_FaceImgP);
+                    }
+
+                }
+            });
+        }
+    });
+
+    function getMedia() {
+        let constraints = {
+            video: { width: 500, height: 500 },
+            audio: true
+        };
+        //获得video摄像头区域
+        let video = document.getElementById("video");
+        //这里介绍新的方法，返回一个 Promise对象
+        // 这个Promise对象返回成功后的回调函数带一个 MediaStream 对象作为其参数
+        // then()是Promise对象里的方法
+        // then()方法是异步执行，当then()前的方法执行完后再执行then()内部的程序
+        // 避免数据没有获取到
+        let promise = navigator.mediaDevices.getUserMedia(constraints);
+        promise.then(function (MediaStream) {
+            video.srcObject = MediaStream;
+            video.play();
+        });
+    }
+
+    function takePhoto() {
+
+        //获得Canvas对象
+        let video = document.getElementById("video");
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, 500, 500);
+        var img = canvas.toDataURL("image/jpeg", 0.5);
+        //视频转换到canvs
+        $('#imgvideo').attr('src', img);
+
+        var imgName = Math.round(Math.random() * 10000000000)
+
+        // 调用方式
+        // 参数一： 选择器，代表canvas
+        // 参数二： 图片名称，可选
+
+        downloadCanvasIamge('canvas', imgName);
+        //关闭摄像窗口页面
+        setTimeout(function () {
+            custom_close();
+        }, 1100);
+    }
+    // 下载Canvas元素的图片
+    function downloadCanvasIamge(selector, name) {
+        // 通过选择器获取canvas元素
+        var canvas = document.querySelector(selector)
+        // 使用toDataURL方法将图像转换被base64编码的URL字符串
+        var url = canvas.toDataURL('image/jpeg')
+        // 生成一个a元素
+        var a = document.createElement('a')
+        // 创建一个单击事件
+        var event = new MouseEvent('click')
+
+        // 将a的download属性设置为我们想要下载的图片名称，若name不存在则使用‘下载图片名称’作为默认名称
+        a.download = name || '下载图片名称'
+        // 将生成的URL设置为a.href属性
+        a.href = url
+        console.log(url)
+        // 触发a的单击事件
+        a.dispatchEvent(event)
+    }
+
+    function initControl() {
+        $("#F_Gender").bindSelect()
+        $("#F_IsAdministrator").bindSelect()
+        $("#F_EnabledMark").bindSelect()
+        $("#F_OrganizeId").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson"
+        });
+        $("#F_DepartmentId").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson",
+        });
+        $("#F_RoleId").bindSelect({
+            url: "/SystemManage/Role/GetGridJson",
+            id: "F_Id",
+            text: "F_FullName"
+        });
+        $("#F_DutyId").bindSelect({
+            url: "/SystemManage/Duty/GetGridJson",
+            id: "F_Id",
+            text: "F_FullName"
+        });
+    }
+
+    ///加载楼栋下拉框
+    function Equipmentoptions() {
+        $.ajax({
+            //几个参数需要注意一下
+            type: "Post",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/SystemManage/Unit/Equipmentselect",//url
+            success: function (result) {
+                $('#FloorCode').append(result.m_StringValue)
+                $("#FloorCode")[0].appendChild(result.m_StringValue)
+                document.getElementById("select").innerHTML = result.m_StringValue;
+            },
+            error: function (data) {
+
+                alert("操作失败")
+
+            }
+        });
+    }
+
+    ///加单元栋下拉框
+    function Unitoption() {
+
+        $.ajax({
+            //几个参数需要注意一下
+            type: "Post",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/SystemManage/FreeStandard/Unitselect",//url
+            success: function (result) {
+
+                $('#UnitCode').append(result.m_StringValue)
+                $("#UnitCode")[0].appendChild(result.m_StringValue)
+                document.getElementById("select").innerHTML = result.m_StringValue;
+            },
+            error: function (data) {
+
+                alert("操作失败")
+
+            }
+        });
+    }
+    ///加载小区信息下拉框
+    function option() {
+        $.ajax({
+            //几个参数需要注意一下
+            type: "Post",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/SystemManage/Floor/option",//url
+            success: function (result) {
+
+                $('#CommunityCode').append(result.m_StringValue)
+                $("#CommunityCode")[0].appendChild(result.m_StringValue)
+                document.getElementById("select").innerHTML = result.m_StringValue;
+            },
+            error: function (data) {
+
+                alert("操作失败")
+
+            }
+        });
+    }
+
+
+    ///加载设备下拉框
+    function Equipmentoption() {
+
+        $.ajax({
+            //几个参数需要注意一下
+            type: "Post",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/SystemManage/Announcement/Equipmentselect",//url
+            success: function (result) {
+
+                $('#select').append(result.m_StringValue)
+                $("#select")[0].appendChild(result.m_StringValue)
+                document.getElementById("select").innerHTML = result.m_StringValue;
+            },
+            error: function (data) {
+
+                alert("操作失败")
+
+            }
+        });
+    }
+    //拍摄头像
+    function Add_Img() {
+
+        //页面层
+        layer.open({
+            type: 2,
+            skin: 'layui-layer-rim', //加上边框
+            area: ['550px', '350px'], //宽高  他已近到那个页面了的
+            content: '/SystemManage/Announcement/test',
+
+        })
+
+    }
+    function btn_Img() {
+
+
+        var formData = new FormData()
+        var file = $("#FaceImg")[0].files[0]
+        formData.append("image", file)
+
+        $.ajax({
+            //url: "http://localhost:45163/api/ImgAdd",
+            url: "http://dev.iotong.cn/api/ImgAdd",
+            method: 'POST',
+            processData: false,
+            contentType: false,
+            cache: false,
+            data: formData,
+            success: function (result) {
+
+                $("#OI_FaceImgP").val(result);
+                top.layer.msg("上传成功");
+            },
+            error: function (error) {
+                throw error
+            }
+        })
+        console.log(ImgUrl)
+    }
+
+    function submitForm() {
+
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        ImgUrl = $("#OI_FaceImgP").val();
+        $("#EquipNO").val($("#select").val())
+        if (ImgUrl == "" || ImgUrl == null || ImgUrl == undefined) {
+            alert("请先上传头像")
+            return
+        }
+        $.submitForm({
+            url: "/SystemManage/OwnersItems/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#">基本信息</a></li>
+            @*<li ><a href="#">扩展信息</a></li>*@
+        </ul>
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">姓名</th>
+                    <td class="formValue">
+                        <input id="OI_Name" name="OI_Name" type="text" class="form-control required" placeholder="请输入姓名" />
+                    </td>
+                    <th class="formTitle">性别</th>
+                    <td class="formValue">
+                        <select id="OI_Sex" name="OI_Sex" class="form-control required">
+                            <option value="true">男</option>
+                            <option value="false">女</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">身份证号</th>
+                    <td class="formValue">
+                        <input id="OI_IdNumber" name="OI_IdNumber" type="text" class="form-control required" placeholder="请输入身份证号" />
+                    </td>
+                    <th class="formTitle">民族</th>
+                    <td class="formValue">
+                        <input id="OI_Notional" name="OI_Notional" type="text" class="form-control required" placeholder="请输入民族" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">联系电话</th>
+                    <td class="formValue">
+                        <input id="OI_Tel" name="OI_Tel" type="text" class="form-control required" placeholder="请输入电话" />
+                    </td>
+                    <th class="formTitle">联系手机号</th>
+                    <td class="formValue">
+                        <input id="OI_Phone" name="OI_Phone" type="text" class="form-control required" placeholder="请输入手机号" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">与业主关系</th>
+                    <td class="formValue">
+                        <input id="OI_Rela" name="OI_Rela" type="text" class="form-control" />
+                    </td>
+                    <th class="formTitle">生日</th>
+                    <td class="formValue">
+                        <input id="OI_Birthday" name="OI_Birthday" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker()" />
+                    </td>
+                </tr>
+
+                <tr>
+
+                    <th class="formTitle"> 选择设备</th>
+                    <td class="formValue">
+                        <select id="select" class="form-control required">
+                            <option>请选择</option>
+                        </select>
+                    </td>
+                    <th class="formTitle"> 房号</th>
+                    <td class="formValue">
+                        <input type="text" name="O_HouseNo" id="O_HouseNo" class="form-control" />
+                    </td>
+
+                </tr>
+                <tr>
+                    <td class="formValue">
+                        <input type="text" name="OI_FaceImgP" id="OI_FaceImgP" class="form-control" style="display:none" />
+                    </td>
+                    <td class="formValue">
+                        <input type="text" name="EquipNO" id="EquipNO" class="form-control" style="display:none" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">请选择小区</th>
+                    <td class="formValue">
+                        <select id="CommunityCode" class="form-control required">
+                            <option>请选择</option>
+                        </select>
+                    </td>
+
+                    <th class="formTitle">请选择楼栋</th>
+                    <td class="formValue">
+                        <select id="FloorCode" class="form-control required">
+                            <option>请选择</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">请选择单元</th>
+                    <td class="formValue">
+                        <select id="UnitCode" class="form-control required">
+                            <option>请选择</option>
+                        </select>
+                    </td>
+                    <th class="formTitle">上传头像</th>
+                    <td class="formValue">
+                        <input type="file" id="FaceImg" />
+                    </td>
+                    <td class="btn-group">
+                        <input type="button" value="确定" class="btn btn-primary dropdown-text" onclick="btn_Img()" />
+                    </td>
+
+                </tr>
+                <tr>
+                    <td class="formValue">
+                        <video id="video" style="text-align:center;width:200px;height:200px"></video>
+                        <canvas id="canvas" width="450px" height="450px" style="display:none"></canvas>
+                        <!--base64绘制-->
+                        <img id="imgvideo" style="display:none;" width="640" height="480" src="" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="formValue"><button id="snap" style="text-align:center" onclick="takePhoto()">拍照</button></td>
+
+                </tr>
+            </table>
+
+
+        </div>
+    </div>
+</form>

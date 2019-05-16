@@ -1,0 +1,168 @@
+﻿@{
+    ViewBag.Title = "AddFloor";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+
+<link href="~/layer/css/layui.css" rel="stylesheet" />
+<script src="~/layer/mobile/layer.js"></script>
+<script>
+    var keyValue = $.request("keyValue");
+    var ImgUrl = "";
+
+    $(function () {
+        initControl();
+        option();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/SystemManage/Floor/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                
+                }
+            });
+        }
+    });
+    function initControl() {
+        $("#F_Gender").bindSelect()
+        $("#F_IsAdministrator").bindSelect()
+        $("#F_EnabledMark").bindSelect()
+        $("#F_OrganizeId").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson"
+        });
+        $("#F_DepartmentId").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson",
+        });
+        $("#F_RoleId").bindSelect({
+            url: "/SystemManage/Role/GetGridJson",
+            id: "F_Id",
+            text: "F_FullName"
+        });
+        $("#F_DutyId").bindSelect({
+            url: "/SystemManage/Duty/GetGridJson",
+            id: "F_Id",
+            text: "F_FullName"
+        });
+    }
+
+    ///加载小区信息下拉框
+    function option() {
+        $.ajax({
+            //几个参数需要注意一下
+            type: "Post",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/SystemManage/Floor/option",//url
+            success: function (result) {
+
+                $('#CommunityCode').append(result.m_StringValue)
+                $("#CommunityCode")[0].appendChild(result.m_StringValue)
+                document.getElementById("select").innerHTML = result.m_StringValue;
+            },
+            error: function (data) {
+
+                alert("操作失败")
+
+            }
+        });
+    }
+
+    function submitForm() {
+
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        if ($("#CommunityCode").val() == null) {
+            alert("请先添加小区信息")
+            return
+        }
+
+        $.submitForm({
+            url: "/SystemManage/Floor/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#">基本信息</a></li>
+            @*<li ><a href="#">扩展信息</a></li>*@
+        </ul>
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">楼栋名称</th>
+                    <td class="formValue">
+                        <input id="F_Name" name="F_Name" type="text" class="form-control required" placeholder="请输入楼栋名称" />
+                    </td>
+                    <th class="formTitle">楼栋位置</th>
+                    <td class="formValue">
+                        <input id="F_Addr" name="F_Addr" type="text" class="form-control required" placeholder="请输入楼栋位置" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">单元数量</th>
+                    <td class="formValue">
+                        <input id="F_Unit" oninput="value=value.replace(/[^\d]/g,'')" name="F_Unit" type="text" class="form-control required" placeholder="请输入单元数量" />
+                    </td>
+                    <th class="formTitle">楼层信息</th>
+                    <td class="formValue">
+                        <input id="F_Info" name="F_Info" type="text" class="form-control required" placeholder="请输入楼层信息" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">总人口数</th>
+                    <td class="formValue">
+                        <input id="F_Rkzs" name="F_Rkzs" oninput="value=value.replace(/[^\d]/g,'')" type="text" class="form-control required" placeholder="请输入总人口数" />
+                    </td>
+                    <th class="formTitle">总户数</th>
+                    <td class="formValue">
+                        <input id="F_Fs" name="F_Fs" oninput="value=value.replace(/[^\d]/g,'')" type="text" class="form-control required" placeholder="请输入总户数" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">入住户数</th>
+                    <td class="formValue">
+                        <input id="F_Rzfs" name="F_Rzfs" oninput="value=value.replace(/[^\d]/g,'')" type="text" class="form-control" placeholder="请输入入住户数" />
+                    </td>
+                    <th class="formTitle">空置户数</th>
+                    <td class="formValue">
+                        <input id="F_Kzfs" name="F_Kzfs" oninput="value=value.replace(/[^\d]/g,'')" type="text" class="form-control" placeholder="请输入空置户数" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">住宅户数</th>
+                    <td class="formValue">
+                        <input id="F_Zzfs" name="F_Zzfs" oninput="value=value.replace(/[^\d]/g,'')" type="text" class="form-control" placeholder="请输入住宅户数" />
+                    </td>
+                    <th class="formTitle">商用户数</th>
+                    <td class="formValue">
+                        <input id="F_Syfs" name="F_Syfs" oninput="value=value.replace(/[^\d]/g,'')" type="text" class="form-control" placeholder="请输入商用户数" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">管理楼长</th>
+                    <td class="formValue">
+                        <input id="F_Mange" name="F_Mange" type="text" class="form-control" placeholder="请输入管理楼长" />
+                    </td>
+                   
+                    <th class="formTitle">请选择小区</th>
+                    <td class="formValue">
+                        <select id="CommunityCode">
+                            <option>请选择</option>
+                        </select>
+
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>
+

@@ -1,0 +1,145 @@
+﻿@{
+    ViewBag.Title = "Selectowner";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<link href="~/layer/css/layui.css" rel="stylesheet" />
+<script src="~/layer/mobile/layer.js"></script>
+<script>
+    var keyValue = $.request("keyValue");
+    var ImgUrl = "";
+
+    $(function () {
+        Equipmentoption();
+        if (!!keyValue) {
+
+            $.ajax({
+                //几个参数需要注意一下
+                type: "GET",//方法类型
+                dataType: "json",//预期服务器返回的数据类型
+                //url: "http://localhost:45163/api/Owners?EquipNO=" + "" +"&keyValue="+keyValue,
+                //url: "http://dev.iotong.cn/api/Owners?EquipNO=" + "" + "&keyValue=" + keyValue,//url
+                url: "/SystemManage/OwnersItems/GetFormJson",
+                data: { "keyValue": keyValue },
+                success: function (result) {
+                    console.log(result);//打印服务端返回的数据(调试用)
+                    $("#form1").formSerialize(result);
+                   
+                    $("#OI_Name").val(result.OI_Name);
+                    $("#OI_Sex").val(result.OI_Sex);
+                    $("#OI_IdNumber").val(result.OI_IdNumber);
+                    $("#OI_Notional").val(result.OI_Notional);
+                    $("#OI_Tel").val(result.OI_Tel);
+                    $("#OI_Phone").val(result.OI_Phone);
+                    $("#OI_Rela").val(result.OI_Rela);
+                    $("#OI_Birthday").val(result.OI_Birthday);
+                    $("#OI_FaceImgP").val(result.OI_FaceImgP);
+                    $("#select").val(result.EquipNO);
+                    $("#imgvideo").attr("src", result.OI_FaceImgP)
+                }
+            });
+        }
+    });
+    ///加载设备下拉框
+    function Equipmentoption() {
+
+        $.ajax({
+            //几个参数需要注意一下
+            type: "Post",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/SystemManage/Announcement/Equipmentselect",//url
+            success: function (result) {
+
+                $('#select').append(result.m_StringValue)
+                $("#select")[0].appendChild(result.m_StringValue)
+                document.getElementById("select").innerHTML = result.m_StringValue;
+            },
+            error: function (data) {
+
+                alert("操作失败")
+
+            }
+        });
+    }
+
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#">基本信息</a></li>
+            @*<li ><a href="#">扩展信息</a></li>*@
+        </ul>
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">姓名</th>
+                    <td class="formValue">
+                        <input id="OI_Name" name="OI_Name" type="text" class="form-control required" placeholder="请输入姓名" />
+                    </td>
+                    <th class="formTitle">性别</th>
+                    <td class="formValue">
+                        <select id="OI_Sex" name="OI_Sex" class="form-control required">
+                            <option value="true">男</option>
+                            <option value="false">女</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">身份证号</th>
+                    <td class="formValue">
+                        <input id="OI_IdNumber" name="OI_IdNumber" type="text" class="form-control required" placeholder="请输入身份证号" />
+                    </td>
+                    <th class="formTitle">民族</th>
+                    <td class="formValue">
+                        <input id="OI_Notional" name="OI_Notional" type="text" class="form-control required" placeholder="请输入民族" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">联系电话</th>
+                    <td class="formValue">
+                        <input id="OI_Tel" name="OI_Tel" type="text" class="form-control required" placeholder="请输入电话" />
+                    </td>
+                    <th class="formTitle">联系手机号</th>
+                    <td class="formValue">
+                        <input id="OI_Phone" name="OI_Phone" type="text" class="form-control required" placeholder="请输入手机号" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">与业主关系</th>
+                    <td class="formValue">
+                        <input id="OI_Rela" name="OI_Rela" type="text" class="form-control" />
+                    </td>
+                    <th class="formTitle">生日</th>
+                    <td class="formValue">
+                        <input id="OI_Birthday" name="OI_Birthday" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker()" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle"> 选择设备</th>
+                    <td class="formValue">
+                        <select id="select">
+                            <option>请选择</option>
+                        </select>
+                    </td>
+
+                    <td class="formValue">
+                        <input type="text" name="OI_FaceImgP" id="OI_FaceImgP" class="form-control" style="display:none" />
+                    </td>
+                    <td class="formValue">
+                        <input type="text" name="EquipNO" id="EquipNO" class="form-control" style="display:none" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle"> 头像</th>
+                    <td class="formValue">
+                        <img id="imgvideo" width="200" height="200" src="" />
+                    </td>
+                </tr>
+
+            </table>
+
+
+        </div>
+    </div>
+</form>

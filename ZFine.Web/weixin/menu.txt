@@ -1,0 +1,30 @@
+ {
+     "button":[
+     {	
+          
+		  "type":"scancode_push",
+          "name":"扫码就餐",
+		  "key":"Scancode"
+         
+      },
+      {
+           "type":"view",
+           "name":"最新通知",
+           "url":"http://www.gzwulian.cn/Notice/Index"
+      },
+      {
+           "name":"我的",
+           "sub_button":[
+            {	
+               "type":"view",
+               "name":"个人信息",
+               "url":"http://www.gzwulian.cn/EmpInfo/Index/"
+            },
+            {
+               "type":"view",
+               "name":"消费记录",
+               "url":"http://www.gzwulian.cn/DiningInfo/Index/"
+            }
+			]
+       }]
+ }

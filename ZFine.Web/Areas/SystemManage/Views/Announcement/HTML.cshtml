@@ -1,0 +1,44 @@
+﻿@{
+    ViewBag.Title = "HTML";
+   
+}
+
+<html>
+<head>
+    <script src="~/Content/assets/jquery-v1.10.2.min.js"></script>
+    <script src="~/Content/assets/jquery.min.js"></script>
+    <script src="~/Content/assets/trumbowyg.js"></script>
+    <script type="text/javascript">
+
+        var key = window.location.search.split("=");
+        var keyValue = key[1]
+
+        ///初始化数据
+        $(function () {
+          
+            if (!!keyValue) {
+                $.ajax({
+                    url: "/SystemManage/Announcement/GetFormJson",
+                    data: { keyValue: keyValue },
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        
+                        $("#title").html(data.N_Title)
+                        $("#centen_conte")[0].innerHTML = data.N_Content;
+                    }
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="top_title" style="text-align:center;">
+        <h2 id="title"></h2>
+    </div>
+    <div id="centen_conte">
+     
+    </div>
+
+</body>
+</html>

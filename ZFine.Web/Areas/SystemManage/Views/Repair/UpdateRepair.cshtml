@@ -1,0 +1,204 @@
+﻿@{
+    ViewBag.Title = "UpdateRepair";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<link href="~/layer/css/layui.css" rel="stylesheet" />
+<script src="~/layer/mobile/layer.js"></script>
+<script>
+    var keyValue = $.request("keyValue");
+    var ImgUrl = "";
+
+    $(function () {
+
+        Equipmentoption();
+        Unitoption();
+        option();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/SystemManage/Repair/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                    console.log(data)
+                    $("#UnitCode").val(data.UnitCode);
+                    $("#FloorCode").val(data.FloorCode);
+                    $("#CommunityCode").val(data.CommunityCode);
+                    if (data.R_ManResults == true)
+                        $("#R_ManResults").val("true");
+                    else
+                        $("#R_ManResults").val("false");
+
+                    $("#R_Image").attr("src", data.R_Image)
+                }
+            });
+        }
+    });
+
+
+    ///加载楼栋下拉框
+    function Equipmentoption() {
+
+        $.ajax({
+            //几个参数需要注意一下
+            type: "Post",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/SystemManage/Unit/Equipmentselect",//url
+            success: function (result) {
+
+                $('#FloorCode').append(result.m_StringValue)
+                $("#FloorCode")[0].appendChild(result.m_StringValue)
+                document.getElementById("select").innerHTML = result.m_StringValue;
+            },
+            error: function (data) {
+
+                alert("操作失败")
+
+            }
+        });
+    }
+
+    ///加单元栋下拉框
+    function Unitoption() {
+
+        $.ajax({
+            //几个参数需要注意一下
+            type: "Post",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/SystemManage/FreeStandard/Unitselect",//url
+            success: function (result) {
+
+                $('#UnitCode').append(result.m_StringValue)
+                $("#UnitCode")[0].appendChild(result.m_StringValue)
+                document.getElementById("select").innerHTML = result.m_StringValue;
+            },
+            error: function (data) {
+
+                alert("操作失败")
+
+            }
+        });
+    }
+    ///加载小区信息下拉框
+    function option() {
+        $.ajax({
+            //几个参数需要注意一下
+            type: "Post",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/SystemManage/Floor/option",//url
+            success: function (result) {
+
+                $('#CommunityCode').append(result.m_StringValue)
+                $("#CommunityCode")[0].appendChild(result.m_StringValue)
+                document.getElementById("select").innerHTML = result.m_StringValue;
+            },
+            error: function (data) {
+
+                alert("操作失败")
+
+            }
+        });
+    }
+
+    function submitForm() {
+      
+
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        if ($("#UnitCode").val() == null) {
+            alert("请选择楼栋信息")
+            return
+        }
+        if ($("#R_ManResults").val() == 1) {
+            $("#R_ManResults").val() == true
+        }
+
+
+        $.submitForm({
+            url: "/SystemManage/Repair/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#">基本信息</a></li>
+            @*<li ><a href="#">扩展信息</a></li>*@
+        </ul>
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">报修类容</th>
+                    <td class="formValue">
+                        <input id="R_Content" name="R_Content" type="text" class="form-control" />
+                    </td>
+                    <th class="formTitle">维修人员</th>
+                    <td class="formValue">
+                        <input id="R_MainPeople" name="R_MainPeople" type="text" class="form-control" />       
+                    </td>
+                </tr>
+
+
+
+                <tr>
+                    <th class="formTitle">接待人</th>
+                    <td class="formValue">
+                        <input id="R_PickPeople" name="R_PickPeople" type="text" class="form-control" />
+                    </td>
+
+                    <th class="formTitle">报修时间</th>
+                    <td class="formValue">
+                        <input id="R_Time" name="R_Time" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker()" />
+                    </td>
+
+                </tr>
+                <tr>
+
+                    <th class="formTitle">处理结果</th>
+                    <td class="formValue">
+                        <select id="R_ManResults">
+                            <option value=true>已处理</option>
+                            <option value=false>待处理</option>
+                        </select>
+                    </td>
+                    <th class="formTitle">所属单元</th>
+                    <td class="formValue">
+                        <select id="UnitCode">
+                            <option>请选择</option>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">所属小区</th>
+                    <td class="formValue">
+                        <select id="CommunityCode">
+                            <option>请选择</option>
+                        </select>
+                    </td>
+
+                    <th class="formTitle">所属楼栋</th>
+                    <td class="formValue">
+                        <select id="FloorCode">
+                            <option>请选择</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">报修图片</th>
+                    <td class="formValue">
+
+                        <img id="R_Image" width="200" height="200" src="" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,121 @@
+﻿@{
+    ViewBag.Title = "addNoticeType";
+}
+
+<script src="~/Content/assets/jquery-v1.10.2.min.js"></script>
+<script src="~/Content/assets/jquery.min.js"></script>
+<link href="~/Content/assets/design/css/trumbowyg.css" rel="stylesheet" />
+<script src="~/Content/assets/jquery-v1.10.2.min.js"></script>
+<script src="~/Content/assets/jquery.min.js"></script>
+<script src="~/Content/assets/trumbowyg.js"></script>
+<script src="~/Content/assets/plugins/base64/trumbowyg.base64.js"></script>
+<link rel="stylesheet" type="text/css" href="./css/waves.min.css?v=0.7.2">
+<style>
+    #colored-button .btn {
+        color: #fff;
+    }
+
+    #colored-button a,
+    #colored-button a:hover {
+        /*background: #01BCFF;*/
+    }
+
+    #colored-button button,
+    #colored-button button:hover {
+        /*background: #1bb556;*/
+    }
+
+    #colored-button input,
+    #colored-button input:hover {
+        background: #ff4f0f;
+    }
+</style>
+<link href="~/Content/assets/design/css/trumbowyg.css" rel="stylesheet" />
+<script src="~/Content/assets/jquery-v1.10.2.min.js"></script>
+<script src="~/Content/assets/jquery.min.js"></script>
+<script src="~/Content/assets/trumbowyg.js"></script>
+<script src="~/Content/assets/plugins/base64/trumbowyg.base64.js"></script>
+<link rel="stylesheet" type="text/css" href="./css/waves.min.css?v=0.7.2">
+<style>
+    #colored-button .btn {
+        color: #fff;
+    }
+
+    #colored-button a,
+    #colored-button a:hover {
+        /*background: #01BCFF;*/
+    }
+
+    #colored-button button,
+    #colored-button button:hover {
+        /*background: #1bb556;*/
+    }
+
+    #colored-button input,
+    #colored-button input:hover {
+        background: #ff4f0f;
+    }
+</style>
+
+<script type="text/javascript">
+    //var keyValue = getQueryString(keyValue);
+    var key = window.location.search.split("=");
+    var keyValue = key[1]
+
+    //初始化
+    $(function () {
+
+        if (!!keyValue) {
+            $.ajax({
+                url: "/SystemManage/NoticeType/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    console.log(data)
+                    document.getElementById("TypeName").value = data.TypeName
+
+                }
+            });
+        }
+    });
+    //添加
+    function btn_Add() {
+
+        var name = document.getElementById("TypeName").value;
+
+        alert(name)
+        $.ajax({
+            //几个参数需要注意一下
+            type: "Post",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/SystemManage/NoticeType/addNoticeType",//url
+            data: { "name": name, "keyValue": keyValue },
+            success: function (result) {
+                console.log(result);//打印服务端返回的数据(调试用)
+                if (result.resultCode == 200) {
+                    alert("SUCCESS");
+                    window.location.reload()
+                }
+                ;
+            },
+            error: function () {
+                alert("操作成功");
+                window.location.reload()
+            }
+        });
+    }
+
+</script>
+
+<div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+
+    <span class="formTitle">类型名称:</span>
+    <input id="TypeName" name="TypeName" type="text" style="width:150px" placeholder="类型名称" />
+
+
+    <button type="submit" style="text-align:center" class="text-center" onclick="btn_Add()">添加</button>
+
+
+</div>
+

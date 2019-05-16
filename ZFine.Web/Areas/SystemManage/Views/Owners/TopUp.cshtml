@@ -1,0 +1,55 @@
+﻿@{
+  
+    ViewBag.Title = "TopUp";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+
+<link href="~/layer/css/layui.css" rel="stylesheet" />
+<script src="~/layer/mobile/layer.js"></script>
+<script>
+    var keyValue = $.request("keyValue");
+    var ImgUrl = "";
+
+    function submitForm() {
+
+        $.submitForm({
+            url: "/SystemManage/Owners/UpdateTopUp?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#">基本信息</a></li>
+            @*<li ><a href="#">扩展信息</a></li>*@
+        </ul>
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">充值类型</th>
+                    <td class="formValue">
+                        <select id="C_Name">
+                            <option value="水电费">水电费</option>
+                            <option value="物业费">物业费</option>
+                            <option value="停车费">停车费</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </td>
+                <tr />
+                <tr>
+                    <th class="formTitle">充值金额:</th>
+                    <td class="formValue">
+                        <input id="money" name="money" type="text" class="form-control required" placeholder="请输入充值金额" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>
+

@@ -1,0 +1,115 @@
+﻿@{
+    ViewBag.Title = "AddCommunityinfo";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<link href="~/layer/css/layui.css" rel="stylesheet" />
+<script src="~/layer/mobile/layer.js"></script>
+<script>
+    var keyValue = $.request("keyValue");
+    var ImgUrl = "";
+
+    $(function () {
+        initControl();
+       
+        if (!!keyValue) {
+            $.ajax({
+                url: "/SystemManage/CommunityInfo/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                    $("#F_UserPassword").val("******").attr('disabled', 'disabled');
+                }
+            });
+        }
+    });
+    function initControl() {
+        $("#F_Gender").bindSelect()
+        $("#F_IsAdministrator").bindSelect()
+        $("#F_EnabledMark").bindSelect()
+        $("#F_OrganizeId").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson"
+        });
+        $("#F_DepartmentId").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson",
+        });
+        $("#F_RoleId").bindSelect({
+            url: "/SystemManage/Role/GetGridJson",
+            id: "F_Id",
+            text: "F_FullName"
+        });
+        $("#F_DutyId").bindSelect({
+            url: "/SystemManage/Duty/GetGridJson",
+            id: "F_Id",
+            text: "F_FullName"
+        });
+    }
+
+ 
+    function submitForm() {
+
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+
+        $.submitForm({
+            url: "/SystemManage/CommunityInfo/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#">基本信息</a></li>
+            @*<li ><a href="#">扩展信息</a></li>*@
+        </ul>
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">小区名称</th>
+                    <td class="formValue">
+                        <input id="C_Name" name="C_Name" type="text" class="form-control required" placeholder="请输入小区名称" />
+                    </td>
+                    <th class="formTitle">负责人</th>
+                    <td class="formValue">
+                        <input id="C_Head" name="C_Head" type="text" class="form-control required" placeholder="请输入负责人" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">负责人电话</th>
+                    <td class="formValue">
+                        <input id="C_HeadTel"  name="C_HeadTel" type="text" class="form-control required" placeholder="请输入负责人电话" />
+                    </td>
+                    <th class="formTitle">服务电话</th>
+                    <td class="formValue">
+                        <input id="C_Tel" name="C_Tel"  type="text" class="form-control required" placeholder="请输入服务电话" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">小区地址</th>
+                    <td class="formValue">
+                        <input id="C_Addr" name="C_Addr" type="text" class="form-control required" placeholder="请输入小区地址" />
+                    </td>
+                    <th class="formTitle">经度</th>
+                    <td class="formValue">
+                        <input id="C_Longitude" name="C_Longitude" oninput="value=value.replace(/[^\d]/g,'')" type="text" class="form-control required" placeholder="请输入经度" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">纬度</th>
+                    <td class="formValue">
+                        <input id="C_Latitude" name="C_Latitude" oninput="value=value.replace(/[^\d]/g,'')" type="text" class="form-control" placeholder="请输入纬度" />
+                    </td>
+                </tr>
+                
+            </table>
+        </div>
+    </div>
+</form>

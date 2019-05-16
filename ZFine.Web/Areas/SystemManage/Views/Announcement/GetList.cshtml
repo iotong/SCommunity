@@ -1,0 +1,65 @@
+﻿@{
+    ViewBag.Title = "GetList";
+    
+}
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>选择设备</title>
+
+    <script src="~/layer/layer.js"></script>
+    
+    <script src="~/third-party/jquery-1.10.2.js"></script>
+    <script src="~/third-party/jquery-1.10.2.min.js"></script>
+    <link href="~/layer/css/layui.css" rel="stylesheet" />
+    <script type="text/javascript">
+
+        ///初始化数据
+        $(function () {
+            
+            var Zhi = "";
+            $.ajax({
+                url: "/SystemManage/Announcement/List",
+                dataType: "json",
+                async: false,
+                success: function (data) {
+
+                    $("#check")[0].innerHTML = data.m_StringValue;
+
+                }
+            });
+            //获取选中的设备号
+            $("#Sub").click(function () {
+
+                $.each($('input:checkbox:checked'), function () {
+                    Zhi += $(this).val() + ",";
+                });
+                var reg = /,$/gi;//此处是正则
+                Zhi = Zhi.replace(reg, "");
+                sessionStorage.setItem('Zhi', Zhi);
+                var index = parent.layer.getFrameIndex(window.name);
+                parent.layer.close(index);
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="topPanel" id="topPanel">
+        <form>
+            <div>
+                <label class="">请选择需要发布的设备号:</label>
+                <div id="check">
+
+                </div>
+            </div>
+
+        </form>
+    </div>
+    <br /><br /><br /><br />
+    <div style="text-align:center">
+        <button id="Sub" class="layui-btn layui-btn-lg layui-btn-normal   ">确定</button>
+
+    </div>
+
+</body>
+</html>

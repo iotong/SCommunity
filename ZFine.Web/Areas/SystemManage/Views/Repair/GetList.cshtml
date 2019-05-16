@@ -1,0 +1,140 @@
+﻿@{
+    ViewBag.Title = "GetList";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/SystemManage/Repair/GetGridJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                { label: '小区名称', name: 'CommunityCode', width: 120, align: 'left' },
+                { label: '楼栋', name: 'FloorCode', width: 120, align: 'left', },
+                { label: '单元', name: 'UnitCode', width: 120, align: 'left' },
+                { label: '报修号', name: 'R_Code', width: 120, align: 'left' },
+                { label: '维修人员', name: 'R_MainPeople', width: 120, align: 'left' },
+                { label: '接待人', name: 'R_PickPeople', width: 120, align: 'left' },
+                {
+                    label: '处理状态', name: 'R_ManResults', width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == true) {
+                            return '<font color="#00CD00">已完成</font>';
+                        } else {
+                            return '<font color="#FF0000">待处理</font>';
+                        }
+                    }
+
+                },
+                //{ label: '物业费标准', name: 'R_Image', width: 60, align: 'left' },
+                //{ label: '手机号码', name: 'R_PickPeople', width: 60, align: 'left' },
+                //{ label: '余额', name: 'R_MainPeople', width: 60, align: 'left' },
+                //{
+                //    label: '入住时间', name: 'R_Time', width: 60, align: 'left',
+                //    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                //},
+
+            ],
+            pager: "#gridPager",
+            sortname: 'F_DepartmentId asc,F_CreatorTime desc',
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#txt_keyword").val() },
+            }).trigger('reloadGrid');
+        });
+    }
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新增用户",
+            url: "/SystemManage/OwnersItems/AddOwnersItems",
+            width: "700px",
+            height: "510px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        $.modalOpen({
+            id: "Form",
+            title: "修改用户",
+            url: "/SystemManage/Repair/UpdateRepair?keyValue=" + keyValue,
+            width: "700px",
+            height: "510px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_delete() {
+        $.deleteForm({
+            url: "/SystemManage/OwnersItems/DeleteForm",
+            param: { keyValue: $("#gridList").jqGridRowValue().F_Id },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+    function btn_details() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        $.modalOpen({
+            id: "Details",
+            title: "查看用户",
+            url: "/SystemManage/OwnersItems/Selectowner?keyValue=" + keyValue,
+            width: "700px",
+            height: "550px",
+            btn: null,
+        });
+    }
+
+
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+      
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改信息</a></li>
+                <li><a id="NF-edit" onclick="btn_delete()"><i class="fa fa-pencil-square-o"></i>删除信息</a></li>
+                <li><a id="NF-edit" onclick="btn_details()"><i class="fa fa-pencil-square-o"></i>查看信息</a></li>
+
+            </ul>
+
+            <a href="javascript:;" class="close"></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="txt_keyword" type="text" class="form-control" placeholder="公告类型/操作人员/设备号" style="width: 200px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+

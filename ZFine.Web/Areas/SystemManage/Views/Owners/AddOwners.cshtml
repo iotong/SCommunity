@@ -1,0 +1,256 @@
+﻿@{
+
+    ViewBag.Title = "AddOwners";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<link href="~/layer/css/layui.css" rel="stylesheet" />
+<script src="~/layer/mobile/layer.js"></script>
+<script>
+    var keyValue = $.request("keyValue");
+    var ImgUrl = "";
+
+    $(function () {
+        
+        initControl();
+        Equipmentoption();
+        Unitoption();
+        option();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/SystemManage/Owners/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                    console.log(data)
+                    $("#UnitCode").val(data.UnitCode);
+                    $("#FloorCode").val(data.FloorCode);
+                    $("#CommunityCode").val(data.CommunityCode);
+                }
+            });
+        }
+    });
+    function initControl() {
+        $("#F_Gender").bindSelect()
+        $("#F_IsAdministrator").bindSelect()
+        $("#F_EnabledMark").bindSelect()
+        $("#F_OrganizeId").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson"
+        });
+        $("#F_DepartmentId").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson",
+        });
+        $("#F_RoleId").bindSelect({
+            url: "/SystemManage/Role/GetGridJson",
+            id: "F_Id",
+            text: "F_FullName"
+        });
+        $("#F_DutyId").bindSelect({
+            url: "/SystemManage/Duty/GetGridJson",
+            id: "F_Id",
+            text: "F_FullName"
+        });
+    }
+
+    ///加载楼栋下拉框
+    function Equipmentoption() {
+
+        $.ajax({
+            //几个参数需要注意一下
+            type: "Post",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/SystemManage/Unit/Equipmentselect",//url
+            success: function (result) {
+
+                $('#FloorCode').append(result.m_StringValue)
+                $("#FloorCode")[0].appendChild(result.m_StringValue)
+                document.getElementById("select").innerHTML = result.m_StringValue;
+            },
+            error: function (data) {
+
+                alert("操作失败")
+
+            }
+        });
+    }
+
+    ///加单元栋下拉框
+    function Unitoption() {
+
+        $.ajax({
+            //几个参数需要注意一下
+            type: "Post",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/SystemManage/FreeStandard/Unitselect",//url
+            success: function (result) {
+
+                $('#UnitCode').append(result.m_StringValue)
+                $("#UnitCode")[0].appendChild(result.m_StringValue)
+                document.getElementById("select").innerHTML = result.m_StringValue;
+            },
+            error: function (data) {
+
+                alert("操作失败")
+
+            }
+        });
+    }
+    ///加载小区信息下拉框
+    function option() {
+        $.ajax({
+            //几个参数需要注意一下
+            type: "Post",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/SystemManage/Floor/option",//url
+            success: function (result) {
+
+                $('#CommunityCode').append(result.m_StringValue)
+                $("#CommunityCode")[0].appendChild(result.m_StringValue)
+                document.getElementById("select").innerHTML = result.m_StringValue;
+            },
+            error: function (data) {
+
+                alert("操作失败")
+
+            }
+        });
+    }
+
+    function submitForm() {
+
+
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        if ($("#UnitCode").val() == null) {
+            alert("请选择楼栋信息")
+            return
+        }
+        $.submitForm({
+            url: "/SystemManage/Owners/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#">基本信息</a></li>
+            @*<li ><a href="#">扩展信息</a></li>*@
+        </ul>
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">业主编号</th>
+                    <td class="formValue">
+                        <input id="O_No" name="O_No" type="text" class="form-control required" placeholder="请输入业主编号" />
+                    </td>
+                    <th class="formTitle">身份证号</th>
+                    <td class="formValue">
+                        <input id="O_IdNumber" name="O_IdNumber" type="text" class="form-control required" placeholder="请输入身份证号" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">不动产号</th>
+                    <td class="formValue">
+                        <input id="O_PropertyNo" name="O_PropertyNo" type="text" class="form-control required" placeholder="请输入单元不动产号" />
+                    </td>
+                    <th class="formTitle">房号</th>
+                    <td class="formValue">
+                        <input id="O_HouseNo" name="O_HouseNo" oninput="value=value.replace(/[^\d]/g,'')" type="text" class="form-control required" placeholder="请输入房号" />
+                    </td>
+                </tr>
+
+                <tr>
+
+                    <th class="formTitle">手机号码</th>
+                    <td class="formValue">
+                        <input id="O_Phone" name="O_Phone" type="text" class="form-control required" placeholder="请输入手机号码" />
+                    </td>
+                    <th class="formTitle">电话号码</th>
+                    <td class="formValue">
+                        <input id="O_Tel" name="O_Tel" type="text" class="form-control" placeholder="请输入电话号码"  />
+                    </td>
+
+                </tr>
+                <tr>
+                    <th class="formTitle">建筑面积</th>
+                    <td class="formValue">
+                        <input id="O_BuildingArea" name="O_BuildingArea" type="text" class="form-control"  placeholder="请输入建筑面积"/>
+                    </td>
+                    <th class="formTitle">使用面积</th>
+                    <td class="formValue">
+                        <input id="O_UseArea" name="O_UseArea" type="text" class="form-control"  placeholder="请输入使用面积"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">物业费标准</th>
+                    <td class="formValue">
+                        <input id="O_FreeStatand" name="O_FreeStatand" type="text" class="form-control"  placeholder="请输入物业费标准"/>
+                    </td>
+                    <th class="formTitle">常住人员</th>
+                    <td class="formValue">
+                        <input id="O_Peoples" name="O_Peoples" type="text" class="form-control"  placeholder="请输入常住人员"/>
+                    </td>
+                </tr>
+                <tr>
+
+                    <th class="formTitle">房屋性质</th>
+                    <td class="formValue">
+                        <input id="O_Properties" name="O_Properties" type="text" class="form-control" placeholder="请输入房屋性质" />
+                    </td>
+                    <th class="formTitle">房屋类型</th>
+                    <td class="formValue">
+                        <input id="O_Type" name="O_Type" type="text" class="form-control"  placeholder="请输入房屋类型"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">入住时间</th>
+                    <td class="formValue">
+                        
+                        <input id="O_StayTime" name="O_StayTime" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker()" />
+                    </td>
+                    <th class="formTitle">公众号</th>
+                    <td class="formValue">
+                        <input id="O_WenXInNo" name="O_WenXInNo" type="text" class="form-control" placeholder="请输入公众号" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">真实姓名</th>
+                    <td class="formValue">
+                        <input id="O_RealName" name="O_RealName" type="text" class="form-control" placeholder="请输入真实姓名" />
+                    </td>
+                    <th class="formTitle">请选择单元</th>
+                    <td class="formValue">
+                        <select id="UnitCode">
+                            <option>请选择</option>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">请选择小区</th>
+                    <td class="formValue">
+                        <select id="CommunityCode">
+                            <option>请选择</option>
+                        </select>
+                    </td>
+
+                    <th class="formTitle">请选择楼栋</th>
+                    <td class="formValue">
+                        <select id="FloorCode">
+                            <option>请选择</option>
+                        </select>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+    </div>
+</form>
+

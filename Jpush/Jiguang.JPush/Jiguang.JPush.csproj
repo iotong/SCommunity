@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks Condition="'$(LibraryFrameworks)'==''">netstandard1.1;net45</TargetFrameworks>
+    <TargetFrameworks Condition="'$(LibraryFrameworks)'!=''">$(LibraryFrameworks)</TargetFrameworks>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <Description>The CSharp api client by Jiguang.</Description>
+    <Authors>hevin, Jiguang</Authors>
+    <Company>cn.jiguang</Company>
+    <Product>JPush</Product>
+    <Copyright>MIT</Copyright>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/jpush/jpush-api-csharp-client</PackageProjectUrl>
+    <Version>1.2.3</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard1.1|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard1.1\Jiguang.JPush.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Threading" />
+  </ItemGroup>
+
+</Project>
